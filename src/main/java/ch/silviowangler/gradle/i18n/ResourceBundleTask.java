@@ -28,6 +28,7 @@ public class ResourceBundleTask extends DefaultTask {
   private File outputDir;
   private String inputEncoding = ISO_8859_1;
   private String outputEncoding = ISO_8859_1;
+  private String separator = ",";
   private String bundleBaseName = "messages";
   private List<String> languages = new ArrayList<>();
   private List<Properties> propertiesStore = new ArrayList<>();
@@ -52,6 +53,10 @@ public class ResourceBundleTask extends DefaultTask {
     this.bundleBaseName = bundleBaseName;
   }
 
+  public void setSeparator(String separator) {
+    this.separator = separator;
+  }
+
   @TaskAction
   public void generateResourceBundle() throws IOException {
 
@@ -61,7 +66,7 @@ public class ResourceBundleTask extends DefaultTask {
     // CSV Zeilen verarbeiten
     for (int i = 0; i < lines.size(); i++) {
 
-      String[] tokens = lines.get(i).split(",");
+      String[] tokens = lines.get(i).split(this.separator);
 
       if (i == 0) {
         processHeader(tokens);
