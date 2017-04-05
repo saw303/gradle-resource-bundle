@@ -16,8 +16,9 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Properties;
+import java.util.Map;
 
 /**
  * @author Silvio Wangler
@@ -35,7 +36,7 @@ public class ResourceBundleTask extends DefaultTask {
   private String separator = ",";
   private String bundleBaseName = "messages";
   private List<String> languages = new ArrayList<>();
-  private List<Properties> propertiesStore = new ArrayList<>();
+  private List<Map<String, String>> propertiesStore = new ArrayList<>();
   private boolean native2ascii = false;
 
   public void setCsvFile(File csvFile) {
@@ -88,11 +89,21 @@ public class ResourceBundleTask extends DefaultTask {
 
     // Properties Dateien schreiben
     for (int i = 0; i < this.propertiesStore.size(); i++) {
-      Properties properties = this.propertiesStore.get(i);
+      Map<String, String> properties = this.propertiesStore.get(i);
       File outputFile = new File(this.outputDir, this.bundleBaseName + "_" + this.languages.get(i) + ".properties");
       FileOutputStream outputStream = new FileOutputStream(outputFile);
-      OutputStreamWriter writer = new OutputStreamWriter(outputStream, this.outputEncoding);
-      properties.store(writer, "encoding is " + this.outputEncoding);
+      OutputStreamWriter writer = new OutputStreamWriter(outputStream, this.native2ascii ? "ASCII" : this.outputEncoding);
+
+
+      properties.forEach( (key, value) -> {
+        try {
+          writer.append(key).append("=").append(value).append("\n");
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
+      });
+      writer.flush();
+      writer.close();
     }
   }
 
@@ -110,8 +121,13 @@ public class ResourceBundleTask extends DefaultTask {
       return value;
     }
 
-    String convertedValue = this.native2ascii ? StringEscapeUtils.escapeJava(value) : new String(value.getBytes(this.outputEncoding), this
-        .outputEncoding);
+    String convertedValue;
+
+    if (this.native2ascii) {
+      convertedValue = StringEscapeUtils.escapeJava(value);
+    } else {
+      convertedValue = new String(value.getBytes(this.outputEncoding), this.outputEncoding);
+    }
 
     if (convertedValue.indexOf('\uFFFD') != -1) {
       throw new UnknownTaskException("Troubles convert '" + value + "' (" + this.inputEncoding + ") to " + convertedValue + " (" + this
@@ -127,7 +143,7 @@ public class ResourceBundleTask extends DefaultTask {
       String value = tokens[i];
       getLogger().info("Processing header cell with value " + value);
       this.languages.add(value);
-      this.propertiesStore.add(new Properties());
+      this.propertiesStore.add(new HashMap<>());
     }
   }
 }

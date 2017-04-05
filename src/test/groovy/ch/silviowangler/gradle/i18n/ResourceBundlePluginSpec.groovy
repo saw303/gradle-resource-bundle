@@ -133,7 +133,7 @@ class ResourceBundlePluginSpec extends Specification {
         germanFile?.exists()
 
         and:
-        germanFile.getText('UTF-8').contains('H\\\\u00E4ll\\\\u00F6')
-        germanFile.getText('UTF-8').contains('Tsch\\\\u00F6 mit \\\\u00D6')
+        germanFile.getText('UTF-8').contains('H\\u00E4ll\\u00F6')
+        germanFile.getText('UTF-8').contains('Tsch\\u00F6 mit \\u00D6')
     }
 }
