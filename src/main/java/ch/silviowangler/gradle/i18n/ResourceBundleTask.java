@@ -1,5 +1,7 @@
 package ch.silviowangler.gradle.i18n;
 
+import groovy.json.StringEscapeUtils;
+
 import org.gradle.api.DefaultTask;
 import org.gradle.api.UnknownTaskException;
 import org.gradle.api.tasks.InputFile;
@@ -108,7 +110,7 @@ public class ResourceBundleTask extends DefaultTask {
       return value;
     }
 
-    String convertedValue = this.native2ascii ? UTF8ToAscii.unicodeEscape(value) : new String(value.getBytes(this.outputEncoding), this
+    String convertedValue = this.native2ascii ? StringEscapeUtils.escapeJava(value) : new String(value.getBytes(this.outputEncoding), this
         .outputEncoding);
 
     if (convertedValue.indexOf('\uFFFD') != -1) {
