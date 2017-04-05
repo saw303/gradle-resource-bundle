@@ -1,6 +1,7 @@
 package ch.silviowangler.gradle.i18n;
 
 import org.gradle.api.DefaultTask;
+import org.gradle.api.UnknownTaskException;
 import org.gradle.api.tasks.InputFile;
 import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.TaskAction;
@@ -103,7 +104,7 @@ public class ResourceBundleTask extends DefaultTask {
     String convertedValue = new String(value.getBytes(this.outputEncoding), this.outputEncoding);
 
     if ( convertedValue.indexOf('\uFFFD') != -1) {
-      throw new RuntimeException("Troubles convert '" + value + "' (" + this.inputEncoding + ") to " + convertedValue + " (" + this.outputEncoding + ")");
+      throw new UnknownTaskException("Troubles convert '" + value + "' (" + this.inputEncoding + ") to " + convertedValue + " (" + this.outputEncoding + ")");
     }
 
     getLogger().error("Converted '{}' to '{}'", value, convertedValue);
