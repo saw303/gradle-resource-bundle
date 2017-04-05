@@ -9,15 +9,8 @@ repositories {
 
 dependencies {
 
-    testCompile "org.spockframework:spock-core:1.1-groovy-2.4-rc-4"
+    testCompile ("org.spockframework:spock-core:1.1-groovy-2.4-rc-4") {
+        exclude group: 'org.codehaus.groovy', module: 'groovy-all'
+    }
     testCompile "org.codehaus.groovy:groovy:2.4.10"
 }
-
-/*gradlePlugin {
-    plugins {
-        i18nPlugin {
-            id = "ch.silviowangler.gradle.i18n"
-            implementationClass = 'ch.silviowangler.gradle.i18n.ResourceBundlePlugin'
-        }
-    }
-}*/
