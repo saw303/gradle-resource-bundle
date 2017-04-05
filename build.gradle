@@ -1,16 +1,39 @@
 plugins {
     id "java-gradle-plugin"
     id "groovy"
+    id "org.ysb33r.bintray" version "1.6"
 }
 
 repositories {
     jcenter()
 }
 
+version appVersion
+
 dependencies {
 
-    testCompile ("org.spockframework:spock-core:1.1-groovy-2.4-rc-4") {
+    testCompile ("org.spockframework:spock-core:${spockVersion}") {
         exclude group: 'org.codehaus.groovy', module: 'groovy-all'
     }
-    testCompile "org.codehaus.groovy:groovy:2.4.10"
+    testCompile "org.codehaus.groovy:groovy:${groovyVersion}"
+}
+
+uploadArchives  {
+    repositories {
+        // Publishing as maven
+        bintrayMavenDeployer {
+            username          bintrayUser
+            apiKey            bintrayKey
+            repoOwner         'saw303'
+            repoName          'releases'
+            packageName       'gradle-resource-bundle'
+            description       'This is an example to simplifying bintray publishing'
+            descUrl           'https://github.com/saw303/gradle-resource-bundle/blob/master/README.md'
+            tags              'gradle','bintray'
+            licenses          'Apache-2.0'
+            vcsUrl            'https://github.com/saw303/gradle-resource-bundle'
+            autoCreatePackage true
+            updatePackage     true
+        }
+    }
 }

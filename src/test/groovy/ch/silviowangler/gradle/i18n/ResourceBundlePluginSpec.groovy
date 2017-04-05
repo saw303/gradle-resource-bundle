@@ -48,16 +48,16 @@ class ResourceBundlePluginSpec extends Specification {
 
         temporaryFolder.root.eachFile(FileType.FILES, { file ->
             props << file
-        } )
+        })
 
         then:
         props.size() == 5
 
         and:
-        props.find { it.name == 'messages_de.properties'}
-        props.find { it.name == 'messages_de_CH.properties'}
-        props.find { it.name == 'messages_en.properties'}
-        props.find { it.name == 'messages_fr.properties'}
-        props.find { it.name == 'messages_it.properties'}
+        props.find { it.name == 'messages_de.properties' }
+        props.find { it.name == 'messages_de_CH.properties' }
+        props.find { it.name == 'messages_en.properties' }
+        props.find { it.name == 'messages_fr.properties' }
+        props.find { it.name == 'messages_it.properties' }
     }
 }
