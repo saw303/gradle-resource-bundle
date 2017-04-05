@@ -34,6 +34,7 @@ public class ResourceBundleTask extends DefaultTask {
   private String bundleBaseName = "messages";
   private List<String> languages = new ArrayList<>();
   private List<Properties> propertiesStore = new ArrayList<>();
+  private boolean native2ascii = false;
 
   public void setCsvFile(File csvFile) {
     this.csvFile = csvFile;
@@ -57,6 +58,10 @@ public class ResourceBundleTask extends DefaultTask {
 
   public void setSeparator(String separator) {
     this.separator = separator;
+  }
+
+  public void setNative2ascii(boolean native2ascii) {
+    this.native2ascii = native2ascii;
   }
 
   @TaskAction
@@ -99,15 +104,19 @@ public class ResourceBundleTask extends DefaultTask {
 
   private String convertIfNecessary(String value) throws UnsupportedEncodingException {
 
-    if (this.inputEncoding.equals(this.outputEncoding)) return value;
-
-    String convertedValue = new String(value.getBytes(this.outputEncoding), this.outputEncoding);
-
-    if ( convertedValue.indexOf('\uFFFD') != -1) {
-      throw new UnknownTaskException("Troubles convert '" + value + "' (" + this.inputEncoding + ") to " + convertedValue + " (" + this.outputEncoding + ")");
+    if (this.inputEncoding.equals(this.outputEncoding)) {
+      return value;
     }
 
-    getLogger().error("Converted '{}' to '{}'", value, convertedValue);
+    String convertedValue = this.native2ascii ? UTF8ToAscii.unicodeEscape(value) : new String(value.getBytes(this.outputEncoding), this
+        .outputEncoding);
+
+    if (convertedValue.indexOf('\uFFFD') != -1) {
+      throw new UnknownTaskException("Troubles convert '" + value + "' (" + this.inputEncoding + ") to " + convertedValue + " (" + this
+          .outputEncoding + ")");
+    }
+
+    getLogger().debug("Converted '{}' to '{}'", value, convertedValue);
     return convertedValue;
   }
 

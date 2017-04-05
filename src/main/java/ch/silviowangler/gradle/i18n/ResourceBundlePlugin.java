@@ -2,10 +2,9 @@ package ch.silviowangler.gradle.i18n;
 
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.language.jvm.tasks.ProcessResources;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author Silvio Wangler
@@ -24,10 +23,9 @@ public class ResourceBundlePlugin implements Plugin<Project> {
 
     if (project.getPlugins().hasPlugin("java")) {
 
-      List<String> tasks = new ArrayList<>();
-      tasks.add("processResources");
-
-      resourceBundleTask.setDependsOn(tasks);
+      for (ProcessResources task : project.getTasks().withType(ProcessResources.class)) {
+        task.dependsOn(resourceBundleTask);
+      }
     }
   }
 }

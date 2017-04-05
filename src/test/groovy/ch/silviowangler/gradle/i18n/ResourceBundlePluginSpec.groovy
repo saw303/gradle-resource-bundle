@@ -99,4 +99,41 @@ class ResourceBundlePluginSpec extends Specification {
         germanFile.getText('UTF-8').contains('Hällö')
         germanFile.getText('UTF-8').contains('Tschö mit Ö')
     }
+
+    void "Generate an UTF-8 resource bundle using native2ascii"() {
+        given:
+        ResourceBundleTask task = project.tasks.generateResourceBundle
+
+        and:
+        task.csvFile = new File('src/test/resources/short.csv')
+        task.outputDir = temporaryFolder.root
+        task.inputEncoding = 'ISO-8859-1'
+        task.outputEncoding = 'UTF-8'
+        task.bundleBaseName = 'shorty'
+        task.native2ascii = true
+
+        and:
+        def props = []
+
+        when:
+        task.execute()
+
+        and:
+        temporaryFolder.root.eachFile(FileType.FILES, { file ->
+            props << file
+        })
+
+        and:
+        def germanFile = props.find { it.name == 'shorty_de.properties' }
+
+        then:
+        props.size() == 1
+
+        and:
+        germanFile?.exists()
+
+        and:
+        germanFile.getText('UTF-8').contains('H\\\\u00E4ll\\\\u00F6')
+        germanFile.getText('UTF-8').contains('Tsch\\\\u00F6 mit \\\\u00D6')
+    }
 }
