@@ -59,5 +59,44 @@ class ResourceBundlePluginSpec extends Specification {
         props.find { it.name == 'messages_en.properties' }
         props.find { it.name == 'messages_fr.properties' }
         props.find { it.name == 'messages_it.properties' }
+
+        and:
+        props.find { it.name == 'messages_fr.properties' }.getText('ISO-8859-1').contains('é')
+    }
+
+    void "Generate an UTF-8 resource bundle"() {
+        given:
+        ResourceBundleTask task = project.tasks.generateResourceBundle
+
+        and:
+        task.csvFile = new File('src/test/resources/short.csv')
+        task.outputDir = temporaryFolder.root
+        task.inputEncoding = 'ISO-8859-1'
+        task.outputEncoding = 'UTF-8'
+        task.bundleBaseName = 'shorty'
+
+        and:
+        def props = []
+
+        when:
+        task.execute()
+
+        and:
+        temporaryFolder.root.eachFile(FileType.FILES, { file ->
+            props << file
+        })
+
+        and:
+        def germanFile = props.find { it.name == 'shorty_de.properties' }
+
+        then:
+        props.size() == 1
+
+        and:
+        germanFile?.exists()
+
+        and:
+        germanFile.getText('UTF-8').contains('Hällö')
+        germanFile.getText('UTF-8').contains('Tschö mit Ö')
     }
 }

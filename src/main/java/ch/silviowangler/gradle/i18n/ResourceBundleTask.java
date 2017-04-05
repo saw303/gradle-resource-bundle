@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.util.ArrayList;
@@ -66,7 +67,9 @@ public class ResourceBundleTask extends DefaultTask {
     // CSV Zeilen verarbeiten
     for (int i = 0; i < lines.size(); i++) {
 
-      String[] tokens = lines.get(i).split(this.separator);
+      String line = lines.get(i);
+      getLogger().debug("Processing line {}", line);
+      String[] tokens = line.split(this.separator);
 
       if (i == 0) {
         processHeader(tokens);
@@ -81,16 +84,30 @@ public class ResourceBundleTask extends DefaultTask {
       File outputFile = new File(this.outputDir, this.bundleBaseName + "_" + this.languages.get(i) + ".properties");
       FileOutputStream outputStream = new FileOutputStream(outputFile);
       OutputStreamWriter writer = new OutputStreamWriter(outputStream, this.outputEncoding);
-      properties.store(writer, "");
+      properties.store(writer, "encoding is " + this.outputEncoding);
     }
   }
 
-  private void processData(String[] tokens) {
+  private void processData(String[] tokens) throws UnsupportedEncodingException {
 
     String key = tokens[0];
     for (int i = 1; i < tokens.length; i++) {
-      this.propertiesStore.get(i - 1).put(key, tokens[i]);
+      this.propertiesStore.get(i - 1).put(key, convertIfNecessary(tokens[i]));
     }
+  }
+
+  private String convertIfNecessary(String value) throws UnsupportedEncodingException {
+
+    if (this.inputEncoding.equals(this.outputEncoding)) return value;
+
+    String convertedValue = new String(value.getBytes(this.outputEncoding), this.outputEncoding);
+
+    if ( convertedValue.indexOf('\uFFFD') != -1) {
+      throw new RuntimeException("Troubles convert '" + value + "' (" + this.inputEncoding + ") to " + convertedValue + " (" + this.outputEncoding + ")");
+    }
+
+    getLogger().error("Converted '{}' to '{}'", value, convertedValue);
+    return convertedValue;
   }
 
   private void processHeader(String[] tokens) {
