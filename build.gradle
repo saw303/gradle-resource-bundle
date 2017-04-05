@@ -20,8 +20,8 @@ dependencies {
 }
 
 bintray {
-    user = bintrayUser
-    key = bintrayKey
+    user = hasProperty('bintrayUser') ? bintrayUser : ''
+    key = hasProperty('bintrayKey') ? bintrayKey : ''
     pkg {
         repo = 'releases'
         name = 'gradle-resource-bundle'
