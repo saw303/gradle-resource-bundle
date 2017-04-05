@@ -1,7 +1,8 @@
 plugins {
     id "java-gradle-plugin"
     id "groovy"
-    id "org.ysb33r.bintray" version "1.6"
+    id "com.jfrog.bintray" version "1.7.3"
+    id "maven-publish"
 }
 
 repositories {
@@ -18,22 +19,33 @@ dependencies {
     testCompile "org.codehaus.groovy:groovy:${groovyVersion}"
 }
 
-uploadArchives  {
-    repositories {
-        // Publishing as maven
-        bintrayMavenDeployer {
-            username          bintrayUser
-            apiKey            bintrayKey
-            repoOwner         'saw303'
-            repoName          'releases'
-            packageName       'gradle-resource-bundle'
-            description       'This is an example to simplifying bintray publishing'
-            descUrl           'https://github.com/saw303/gradle-resource-bundle/blob/master/README.md'
-            tags              'gradle','bintray'
-            licenses          'Apache-2.0'
-            vcsUrl            'https://github.com/saw303/gradle-resource-bundle'
-            autoCreatePackage true
-            updatePackage     true
+bintray {
+    user = bintrayUser
+    key = bintrayKey
+    pkg {
+        repo = 'releases'
+        name = 'gradle-resource-bundle'
+        licenses = ['Apache-2.0']
+        publications = ['mavenJava']
+        vcsUrl = 'https://github.com/saw303/gradle-resource-bundle.git'
+        issueTrackerUrl = "https://github.com/saw303/gradle-resource-bundle/issues"
+
+        version {
+            name = appVersion
+            desc = "Gradle Resource Bundle Plugin ${appVersion}"
+            released  = new Date()
+            vcsTag = "v${appVersion}"
+        }
+    }
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            groupId 'ch.silviowangler.gradle.i18n'
+            artifactId 'gradle-resource-bundle'
+            version appVersion
         }
     }
 }
