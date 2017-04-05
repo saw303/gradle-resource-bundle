@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
@@ -29,8 +29,8 @@ public class ResourceBundleTask extends DefaultTask {
   private String inputEncoding = ISO_8859_1;
   private String outputEncoding = ISO_8859_1;
   private String bundleBaseName = "messages";
-  private List<String> languages = Collections.emptyList();
-  private List<Properties> propertiesStore = Collections.emptyList();
+  private List<String> languages = new ArrayList<>();
+  private List<Properties> propertiesStore = new ArrayList<>();
 
   public void setCsvFile(File csvFile) {
     this.csvFile = csvFile;
@@ -73,7 +73,7 @@ public class ResourceBundleTask extends DefaultTask {
     // Properties Dateien schreiben
     for (int i = 0; i < this.propertiesStore.size(); i++) {
       Properties properties = this.propertiesStore.get(i);
-      File outputFile = new File(this.outputDir, this.bundleBaseName + "_" + this.languages.get(i));
+      File outputFile = new File(this.outputDir, this.bundleBaseName + "_" + this.languages.get(i) + ".properties");
       FileOutputStream outputStream = new FileOutputStream(outputFile);
       OutputStreamWriter writer = new OutputStreamWriter(outputStream, this.outputEncoding);
       properties.store(writer, "");
@@ -90,7 +90,9 @@ public class ResourceBundleTask extends DefaultTask {
 
   private void processHeader(String[] tokens) {
     for (int i = 1; i < tokens.length; i++) {
-      this.languages.add(tokens[i]);
+      String value = tokens[i];
+      getLogger().info("Processing header cell with value " + value);
+      this.languages.add(value);
       this.propertiesStore.add(new Properties());
     }
   }

@@ -11,6 +11,8 @@ import java.io.File;
  */
 public class ResourceBundlePlugin implements Plugin<Project> {
 
+  public static final String PLUGIN_ID = "ch.silviowangler.gradle.i18n";
+
   @Override
   public void apply(Project project) {
 
