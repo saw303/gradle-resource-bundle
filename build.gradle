@@ -39,6 +39,10 @@ bintray {
     }
 }
 
+task sourceJar(type: Jar) {
+    from sourceSets.main.allJava
+}
+
 publishing {
     publications {
         mavenJava(MavenPublication) {
@@ -46,6 +50,10 @@ publishing {
             groupId 'ch.silviowangler.gradle.i18n'
             artifactId 'gradle-resource-bundle'
             version appVersion
+
+            artifact sourceJar {
+                classifier "sources"
+            }
         }
     }
 }
