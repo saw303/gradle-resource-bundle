@@ -76,7 +76,7 @@ class ResourceBundlePluginSpec extends Specification {
         props.find { it.name == 'messages_it.properties' }
 
         and:
-        props.find { it.name == 'messages_fr.properties' }.getText('ISO-8859-1').contains('é')
+        props.find { it.name == 'messages_fr.properties' }.getText('ISO-8859-1').contains('Au révoir')
     }
 
     void "Generate an UTF-8 resource bundle"() {

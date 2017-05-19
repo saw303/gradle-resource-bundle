@@ -1,1 +1,5 @@
 rootProject.name = 'gradle-resource-bundle'
+
+include ':core'
+include ':gradle-plugin'
+include ':cmd'

@@ -1,69 +1,52 @@
-plugins {
-    id "java-gradle-plugin"
-    id "groovy"
-    id "com.jfrog.bintray" version "1.7.3"
-    id "maven-publish"
-    id "com.github.hierynomus.license" version "0.13.1"
+buildscript {
+    repositories {
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+    dependencies {
+        classpath "gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:${licensePluginVersion}"
+        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:${bintrayPluginVersion}"
+        classpath "com.github.jengelman.gradle.plugins:shadow:${shadowPluginVersion}"
+    }
 }
 
 repositories {
     jcenter()
 }
 
-version appVersion
+subprojects {
+    version appVersion
 
-dependencies {
+    apply plugin: 'maven-publish'
+    apply plugin: "com.github.hierynomus.license"
+    apply plugin: "com.jfrog.bintray"
+    apply plugin: "java"
+    apply plugin: 'groovy'
 
-    testCompile ("org.spockframework:spock-core:${spockVersion}") {
-        exclude group: 'org.codehaus.groovy', module: 'groovy-all'
+    sourceCompatibility = JavaVersion.VERSION_1_8
+
+    repositories {
+        jcenter()
     }
-    testCompile "org.codehaus.groovy:groovy:${groovyVersion}"
-}
 
-license {
-    header = file("${rootDir}/LICENSE-SHORT.txt")
-    ext.year = Calendar.getInstance().get(Calendar.YEAR)
-    ext.name = 'Silvio Wangler'
-    ext.email = 'silvio.wangler@gmail.com'
+    license {
+        header = file("${rootDir}/LICENSE-SHORT.txt")
 
-    excludes(["**/*.csv"])
-}
+        ext.year = Calendar.getInstance().get(Calendar.YEAR)
+        ext.name = 'Silvio Wangler'
+        ext.email = 'silvio.wangler@gmail.com'
 
-bintray {
-    user = project.hasProperty('bintrayUser') ? bintrayUser : ''
-    key = project.hasProperty('bintrayKey') ? bintrayKey : ''
-    pkg {
-        repo = 'releases'
-        name = 'gradle-resource-bundle'
-        licenses = ['Apache-2.0']
-        publications = ['mavenJava']
-        vcsUrl = 'https://github.com/saw303/gradle-resource-bundle.git'
-        issueTrackerUrl = "https://github.com/saw303/gradle-resource-bundle/issues"
-
-        version {
-            name = appVersion
-            desc = "Gradle Resource Bundle Plugin ${appVersion}"
-            released  = new Date()
-            vcsTag = "v${appVersion}"
-        }
+        excludes(["**/*.csv"])
     }
-}
 
-task sourceJar(type: Jar) {
-    from sourceSets.main.allJava
-}
+    dependencies {
 
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            from components.java
-            groupId 'ch.silviowangler.gradle.i18n'
-            artifactId 'gradle-resource-bundle'
-            version appVersion
+        compile "org.apache.logging.log4j:log4j-api:${log4j2Version}"
 
-            artifact sourceJar {
-                classifier "sources"
-            }
+        testCompile ("org.spockframework:spock-core:${spockVersion}") {
+            exclude group: 'org.codehaus.groovy', module: 'groovy-all'
         }
+        testCompile "org.codehaus.groovy:groovy:${groovyVersion}"
     }
 }
