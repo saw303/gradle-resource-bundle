@@ -20,6 +20,10 @@ import com.beust.jcommander.JCommander;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.IOException;
+
+import ch.silviowangler.i18n.ResourceBundler;
+
 
 /**
  * @author Silvio Wangler
@@ -27,6 +31,7 @@ import org.apache.logging.log4j.Logger;
 public class CommandLineProcessor {
 
   private final static Logger LOGGER = LogManager.getFormatterLogger(CommandLineProcessor.class);
+  private static ResourceBundler resourceBundler;
 
   public static void main(String[] argv) {
 
@@ -34,6 +39,23 @@ public class CommandLineProcessor {
 
     JCommander.newBuilder().addObject(args).build().parse(argv);
 
-    LOGGER.error("Params are %s", args);
+    LOGGER.debug("Params are %s", args);
+
+    resourceBundler = new ResourceBundler();
+    resourceBundler.setCsvFile(args.getCsvFile());
+    resourceBundler.setOutputDir(args.getOutputDir());
+    resourceBundler.setNative2ascii(args.isNative2ascii());
+    resourceBundler.setSeparator(args.getSeparator());
+    resourceBundler.setBundleBaseName(args.getBundleBaseName());
+    resourceBundler.setInputEncoding(args.getInputEncoding());
+
+    try {
+      resourceBundler.generateResourceBundle();
+    } catch (IOException e) {
+      LOGGER.error("Unable to generate resource bundle", e);
+      System.exit(-1);
+    }
+
+    LOGGER.info("Successfully ended process");
   }
 }

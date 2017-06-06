@@ -114,14 +114,6 @@ public class ResourceBundler {
     this.bundleBaseName = bundleBaseName;
   }
 
-  public void setLanguages(List<String> languages) {
-    this.languages = languages;
-  }
-
-  public void setPropertiesStore(List<Map<String, String>> propertiesStore) {
-    this.propertiesStore = propertiesStore;
-  }
-
   public void setNative2ascii(boolean native2ascii) {
     this.native2ascii = native2ascii;
   }

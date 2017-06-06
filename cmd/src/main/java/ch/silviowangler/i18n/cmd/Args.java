@@ -26,19 +26,19 @@ import java.io.File;
  */
 public class Args {
 
-  @Parameter(names = {"input"}, description = "Absolute path to the CSV file to process")
+  @Parameter(names = {"--input", "-i"}, description = "Absolute path to the CSV file to process", required = true)
   private File csvFile;
-  @Parameter(names = {"output"}, description = "Absolute path to the output directory")
+  @Parameter(names = {"--output", "-o"}, description = "Absolute path to the output directory", required = true)
   private File outputDir;
-  @Parameter(names = {"inputEncoding"}, description = "Input encoding (default ISO-8859-1)")
+  @Parameter(names = {"--inputEncoding", "-ie"}, description = "Input encoding (default ISO-8859-1)")
   private String inputEncoding = ISO_8859_1;
-  @Parameter(names = {"outputEncoding"}, description = "Output encoding (default ISO-8859-1)")
+  @Parameter(names = {"--outputEncoding", "-oe"}, description = "Output encoding (default ISO-8859-1)")
   private String outputEncoding = ISO_8859_1;
-  @Parameter(names = {"separator"}, description = "Defines the CSV separator (default ,)")
+  @Parameter(names = {"--separator", "-s"}, description = "Defines the CSV separator (default ,)")
   private String separator = ",";
-  @Parameter(names = {"basename"}, description = "Defines the resource bundle base name (default messages)")
+  @Parameter(names = {"--basename", "-b"}, description = "Defines the resource bundle base name (default messages)")
   private String bundleBaseName = "messages";
-  @Parameter(names = {"native2ascii"}, description = "Force native2ascii (default flase)")
+  @Parameter(names = {"--native2ascii", "--n2a"}, description = "Force native2ascii (default false)")
   private boolean native2ascii = false;
 
   public File getCsvFile() {
