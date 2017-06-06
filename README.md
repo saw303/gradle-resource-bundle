@@ -49,5 +49,23 @@ The first line is the header that contains at least two columns. First column re
     Message Key,de,de_CH,en,fr,it
     key1,Hallo,Hoi,Hello,Salut,Ciao
     key2,Auf wiedersehen,Adieu,Good bye,Au revoir,Ciao
+    
+# Running the application from the command line
+
+This application is available as standalone JAR. 
+
+    java -jar csv2resourcebundle.jar -i <path-to-csv> -o <output-dir>
+    
+The following parameters are available:
+
+short | long | description
+--- | --- | ---
+-i | --input | Absolute path to your CSV input file
+-o | --output | Absolute path for your output   
+-ie | --inputEncoding | Input encoding
+-oe | --outputEncoding | Output encoding
+-s | --separator | Separator used in CSV
+-b | --basename | Resource bundle base name
+-n2a | --native2ascii | Activate native2ascii
 
 
