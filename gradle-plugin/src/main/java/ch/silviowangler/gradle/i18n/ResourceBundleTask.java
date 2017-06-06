@@ -43,12 +43,20 @@ public class ResourceBundleTask extends DefaultTask {
 
   public void setCsvFile(File csvFile) {
     this.csvFile = csvFile;
-    this.resourceBundler.setCsvFile(csvFile);
+    this.resourceBundler.setCsvFile(getCsvFile());
   }
 
   public void setOutputDir(File outputDir) {
     this.outputDir = outputDir;
-    this.resourceBundler.setOutputDir(outputDir);
+    this.resourceBundler.setOutputDir(getOutputDir());
+  }
+
+  public File getCsvFile() {
+    return csvFile;
+  }
+
+  public File getOutputDir() {
+    return outputDir;
   }
 
   public void setInputEncoding(String inputEncoding) {
