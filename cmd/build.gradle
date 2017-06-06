@@ -2,15 +2,18 @@ apply plugin: "com.github.johnrengelman.shadow"
 
 dependencies {
     compile project(':core')
-
     compile "com.beust:jcommander:${jcommanderVersion}"
-
     compile "org.apache.logging.log4j:log4j-core:${log4j2Version}"
 }
 
+jar {
+    manifest {
+        attributes 'Main-Class': 'ch.silviowangler.i18n.cmd.CommandLineProcessor'
+    }
+}
 
 shadowJar {
-    baseName = 'shadow'
+    baseName = 'csv2resourcebundle'
     classifier = null
     version = null
 }
