@@ -44,7 +44,7 @@ public class CommandLineProcessor {
     resourceBundler.setInputEncoding(args.getInputEncoding());
   }
 
-  public static void main(String[] argv) {
+  public static void main(String[] argv) throws IOException {
 
     Args args = new Args();
 
@@ -55,12 +55,12 @@ public class CommandLineProcessor {
     new CommandLineProcessor(args).run();
   }
 
-  public void run() {
+  public void run() throws IOException {
     try {
       resourceBundler.generateResourceBundle();
     } catch (IOException e) {
       LOGGER.error("Unable to generate resource bundle", e);
-      System.exit(-1);
+      throw e;
     }
     LOGGER.info("Successfully ended process");
   }
