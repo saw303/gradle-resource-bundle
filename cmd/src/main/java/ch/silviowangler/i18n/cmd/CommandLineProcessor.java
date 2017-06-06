@@ -42,6 +42,7 @@ public class CommandLineProcessor {
     resourceBundler.setSeparator(args.getSeparator());
     resourceBundler.setBundleBaseName(args.getBundleBaseName());
     resourceBundler.setInputEncoding(args.getInputEncoding());
+    resourceBundler.setOutputEncoding(args.getOutputEncoding());
   }
 
   public static void main(String[] argv) throws IOException {
