@@ -31,7 +31,18 @@ import ch.silviowangler.i18n.ResourceBundler;
 public class CommandLineProcessor {
 
   private final static Logger LOGGER = LogManager.getFormatterLogger(CommandLineProcessor.class);
-  private static ResourceBundler resourceBundler;
+  private final ResourceBundler resourceBundler;
+
+  public CommandLineProcessor(Args args) {
+
+    resourceBundler = new ResourceBundler();
+    resourceBundler.setCsvFile(args.getCsvFile());
+    resourceBundler.setOutputDir(args.getOutputDir());
+    resourceBundler.setNative2ascii(args.isNative2ascii());
+    resourceBundler.setSeparator(args.getSeparator());
+    resourceBundler.setBundleBaseName(args.getBundleBaseName());
+    resourceBundler.setInputEncoding(args.getInputEncoding());
+  }
 
   public static void main(String[] argv) {
 
@@ -41,21 +52,16 @@ public class CommandLineProcessor {
 
     LOGGER.debug("Params are %s", args);
 
-    resourceBundler = new ResourceBundler();
-    resourceBundler.setCsvFile(args.getCsvFile());
-    resourceBundler.setOutputDir(args.getOutputDir());
-    resourceBundler.setNative2ascii(args.isNative2ascii());
-    resourceBundler.setSeparator(args.getSeparator());
-    resourceBundler.setBundleBaseName(args.getBundleBaseName());
-    resourceBundler.setInputEncoding(args.getInputEncoding());
+    new CommandLineProcessor(args).run();
+  }
 
+  public void run() {
     try {
       resourceBundler.generateResourceBundle();
     } catch (IOException e) {
       LOGGER.error("Unable to generate resource bundle", e);
       System.exit(-1);
     }
-
     LOGGER.info("Successfully ended process");
   }
 }
