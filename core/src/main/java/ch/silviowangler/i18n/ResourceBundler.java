@@ -58,8 +58,13 @@ public class ResourceBundler {
     for (int i = 0; i < lines.size(); i++) {
 
       String line = lines.get(i);
-      LOGGER.debug("Processing line {}", line);
+      LOGGER.debug("Processing line {} using token separator '{}'", line, this.separator);
       String[] tokens = line.split(this.separator);
+      LOGGER.debug("Line contains {} tokens", tokens.length);
+
+      if (tokens.length < 2) {
+        LOGGER.warn("Is file {} really a CSV file separated by '{}'?", this.csvFile.getName(), this.separator);
+      }
 
       if (i == 0) {
         processHeader(tokens);
@@ -68,10 +73,16 @@ public class ResourceBundler {
       }
     }
 
+    final int propertiesFilesAmount = this.propertiesStore.size();
+    LOGGER.debug("Will generate {} properties files", propertiesFilesAmount);
+
     // Properties Dateien schreiben
-    for (int i = 0; i < this.propertiesStore.size(); i++) {
+    for (int i = 0; i < propertiesFilesAmount; i++) {
       Map<String, String> properties = this.propertiesStore.get(i);
       File outputFile = new File(this.outputDir, this.bundleBaseName + "_" + this.languages.get(i) + ".properties");
+
+      LOGGER.debug("Writing {} to {}", outputFile.getName(), outputFile.getParentFile().getAbsolutePath());
+
       FileOutputStream outputStream = new FileOutputStream(outputFile);
 
       try (OutputStreamWriter writer = new OutputStreamWriter(outputStream, this.native2ascii ? Consts.ASCII : this.outputEncoding)) {
