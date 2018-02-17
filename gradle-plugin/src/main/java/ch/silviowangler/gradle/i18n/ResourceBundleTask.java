@@ -42,6 +42,11 @@ public class ResourceBundleTask extends DefaultTask {
   }
 
   public void setCsvFile(File csvFile) {
+
+    if (!csvFile.exists()) {
+      throw new IllegalArgumentException("CSV file " + csvFile.getAbsolutePath() + " does not exist");
+    }
+
     this.csvFile = csvFile;
     this.resourceBundler.setCsvFile(getCsvFile());
   }
