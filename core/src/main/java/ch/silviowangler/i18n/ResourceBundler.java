@@ -152,7 +152,7 @@ public class ResourceBundler {
 
         final Iterator<String> iterator = headerNames.iterator();
 
-        for (int i = 0; iterator.hasNext(); i++) {
+        while (iterator.hasNext()) {
             String value = iterator.next();
 
             if (value.length() != 2 && value.length() != 5) {
