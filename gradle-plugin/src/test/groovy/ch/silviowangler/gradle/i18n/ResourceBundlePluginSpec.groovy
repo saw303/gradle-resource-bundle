@@ -52,7 +52,7 @@ class ResourceBundlePluginSpec extends Specification {
         ResourceBundleTask task = project.tasks.generateResourceBundle
 
         and:
-        task.csvFile = new File('src/test/resources/eka-backend.csv')
+        task.csvFile = new File(getClass().getResource('/eka-backend.csv').toURI())
         task.outputDir = temporaryFolder.root
 
         and:
@@ -84,7 +84,7 @@ class ResourceBundlePluginSpec extends Specification {
         ResourceBundleTask task = project.tasks.generateResourceBundle
 
         and:
-        task.csvFile = new File('src/test/resources/short.csv')
+        task.csvFile = new File(getClass().getResource('/short.csv').toURI())
         task.outputDir = temporaryFolder.root
         task.inputEncoding = 'ISO-8859-1'
         task.outputEncoding = 'UTF-8'
@@ -120,7 +120,7 @@ class ResourceBundlePluginSpec extends Specification {
         ResourceBundleTask task = project.tasks.generateResourceBundle
 
         and:
-        task.csvFile = new File('src/test/resources/short.csv')
+        task.csvFile = new File(getClass().getResource('/short.csv').toURI())
         task.outputDir = temporaryFolder.root
         task.inputEncoding = 'ISO-8859-1'
         task.outputEncoding = 'UTF-8'
