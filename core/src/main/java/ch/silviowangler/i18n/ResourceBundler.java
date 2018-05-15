@@ -15,157 +15,153 @@
  */
 package ch.silviowangler.i18n;
 
-import static ch.silviowangler.i18n.Consts.ISO_8859_1;
-
 import groovy.json.StringEscapeUtils;
-
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVRecord;
+import org.apache.commons.csv.QuoteMode;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.io.*;
+import java.util.*;
+
+import static ch.silviowangler.i18n.Consts.ISO_8859_1;
 
 /**
  * @author Silvio Wangler
  */
 public class ResourceBundler {
 
-  private File csvFile;
-  private File outputDir;
-  private String inputEncoding = ISO_8859_1;
-  private String outputEncoding = ISO_8859_1;
-  private String separator = ",";
-  private String bundleBaseName = "messages";
-  private List<String> languages = new ArrayList<>();
-  private List<Map<String, String>> propertiesStore = new ArrayList<>();
-  private boolean native2ascii = false;
+    private File csvFile;
+    private File outputDir;
+    private String inputEncoding = ISO_8859_1;
+    private String outputEncoding = ISO_8859_1;
+    private String separator = ",";
+    private String bundleBaseName = "messages";
+    private List<String> languages = new ArrayList<>();
+    private List<Map<String, String>> propertiesStore = new ArrayList<>();
+    private boolean native2ascii = false;
 
-  private static final Logger LOGGER = LogManager.getLogger(ResourceBundler.class);
+    private static final Logger LOGGER = LogManager.getLogger(ResourceBundler.class);
 
 
-  public void generateResourceBundle() throws IOException {
+    public void generateResourceBundle() throws IOException {
 
-    // File einlesen
-    List<String> lines = Files.readAllLines(this.csvFile.toPath(), Charset.forName(this.inputEncoding));
+        CSVParser records = CSVFormat.RFC4180
+                .withDelimiter(separator.charAt(0))
+                .withFirstRecordAsHeader()
+                .withQuoteMode(QuoteMode.ALL)
+                .parse(new InputStreamReader(new FileInputStream(this.csvFile), this.inputEncoding));
 
-    // CSV Zeilen verarbeiten
-    for (int i = 0; i < lines.size(); i++) {
+        final Map<String, Integer> headers = records.getHeaderMap();
 
-      String line = lines.get(i);
-      LOGGER.debug("Processing line {} using token separator '{}'", line, this.separator);
-      String[] tokens = line.split(this.separator);
-      LOGGER.debug("Line contains {} tokens", tokens.length);
+        processHeader(headers.keySet());
 
-      if (tokens.length < 2) {
-        LOGGER.warn("Is file {} really a CSV file separated by '{}'?", this.csvFile.getName(), this.separator);
-      }
+        for (CSVRecord record : records) {
+            processData(record);
+        }
 
-      if (i == 0) {
-        processHeader(tokens);
-      } else {
-        processData(tokens);
-      }
+        final int propertiesFilesAmount = this.propertiesStore.size();
+        LOGGER.debug("Will generate {} properties files", propertiesFilesAmount);
+
+        // Properties Dateien schreiben
+        for (int i = 0; i < propertiesFilesAmount; i++) {
+            Map<String, String> properties = this.propertiesStore.get(i);
+            File outputFile = new File(this.outputDir, this.bundleBaseName + "_" + this.languages.get(i) + ".properties");
+
+            LOGGER.debug("Writing {} to {}", outputFile.getName(), outputFile.getParentFile().getAbsolutePath());
+
+            FileOutputStream outputStream = new FileOutputStream(outputFile);
+
+            try (OutputStreamWriter writer = new OutputStreamWriter(outputStream, this.native2ascii ? Consts.ASCII : this.outputEncoding)) {
+                properties.forEach((key, value) -> {
+                    try {
+                        writer.append(key).append("=").append(value).append("\n");
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                });
+                writer.flush();
+            }
+        }
     }
 
-    final int propertiesFilesAmount = this.propertiesStore.size();
-    LOGGER.debug("Will generate {} properties files", propertiesFilesAmount);
-
-    // Properties Dateien schreiben
-    for (int i = 0; i < propertiesFilesAmount; i++) {
-      Map<String, String> properties = this.propertiesStore.get(i);
-      File outputFile = new File(this.outputDir, this.bundleBaseName + "_" + this.languages.get(i) + ".properties");
-
-      LOGGER.debug("Writing {} to {}", outputFile.getName(), outputFile.getParentFile().getAbsolutePath());
-
-      FileOutputStream outputStream = new FileOutputStream(outputFile);
-
-      try (OutputStreamWriter writer = new OutputStreamWriter(outputStream, this.native2ascii ? Consts.ASCII : this.outputEncoding)) {
-        properties.forEach((key, value) -> {
-          try {
-            writer.append(key).append("=").append(value).append("\n");
-          } catch (IOException e) {
-            e.printStackTrace();
-          }
-        });
-        writer.flush();
-      }
-    }
-  }
-
-  public void setCsvFile(File csvFile) {
-    this.csvFile = csvFile;
-  }
-
-  public void setOutputDir(File outputDir) {
-    this.outputDir = outputDir;
-  }
-
-  public void setInputEncoding(String inputEncoding) {
-    this.inputEncoding = inputEncoding;
-  }
-
-  public void setOutputEncoding(String outputEncoding) {
-    this.outputEncoding = outputEncoding;
-  }
-
-  public void setSeparator(String separator) {
-    this.separator = separator;
-  }
-
-  public void setBundleBaseName(String bundleBaseName) {
-    this.bundleBaseName = bundleBaseName;
-  }
-
-  public void setNative2ascii(boolean native2ascii) {
-    this.native2ascii = native2ascii;
-  }
-
-  private void processData(String[] tokens) throws UnsupportedEncodingException {
-
-    String key = tokens[0];
-    for (int i = 1; i < tokens.length; i++) {
-      this.propertiesStore.get(i - 1).put(key, convertIfNecessary(tokens[i]));
-    }
-  }
-
-  private String convertIfNecessary(String value) throws UnsupportedEncodingException {
-
-    if (this.inputEncoding.equals(this.outputEncoding)) {
-      return value;
+    public void setCsvFile(File csvFile) {
+        this.csvFile = csvFile;
     }
 
-    String convertedValue;
-
-    if (this.native2ascii) {
-      convertedValue = StringEscapeUtils.escapeJava(value);
-    } else {
-      convertedValue = new String(value.getBytes(this.outputEncoding), this.outputEncoding);
+    public void setOutputDir(File outputDir) {
+        this.outputDir = outputDir;
     }
 
-    if (convertedValue.indexOf('\uFFFD') != -1) {
-      throw new ConversionException(String.format("Troubles converting '%s' (%s) to '%s' (%s)", value, this.inputEncoding, convertedValue,
-          this.outputEncoding));
+    public void setInputEncoding(String inputEncoding) {
+        this.inputEncoding = inputEncoding;
     }
 
-    LOGGER.debug("Converted '{}' to '{}'", value, convertedValue);
-    return convertedValue;
-  }
-
-  private void processHeader(String[] tokens) {
-    for (int i = 1; i < tokens.length; i++) {
-      String value = tokens[i];
-      LOGGER.info("Processing header cell with value " + value);
-      this.languages.add(value);
-      this.propertiesStore.add(new HashMap<>());
+    public void setOutputEncoding(String outputEncoding) {
+        this.outputEncoding = outputEncoding;
     }
-  }
+
+    public void setSeparator(String separator) {
+        this.separator = separator;
+    }
+
+    public void setBundleBaseName(String bundleBaseName) {
+        this.bundleBaseName = bundleBaseName;
+    }
+
+    public void setNative2ascii(boolean native2ascii) {
+        this.native2ascii = native2ascii;
+    }
+
+    private void processData(CSVRecord record) throws UnsupportedEncodingException {
+
+        String key = record.get(0);
+
+        if (key.isEmpty()) return;
+        for (int i = 1; i < record.size(); i++) {
+            this.propertiesStore.get(i - 1).put(key, convertIfNecessary(record.get(i)));
+        }
+    }
+
+    private String convertIfNecessary(String value) throws UnsupportedEncodingException {
+
+        if (this.inputEncoding.equals(this.outputEncoding)) {
+            return value;
+        }
+
+        String convertedValue;
+
+        if (this.native2ascii) {
+            convertedValue = StringEscapeUtils.escapeJava(value);
+        } else {
+            convertedValue = new String(value.getBytes(this.outputEncoding), this.outputEncoding);
+        }
+
+        if (convertedValue.indexOf('\uFFFD') != -1) {
+            throw new ConversionException(String.format("Troubles converting '%s' (%s) to '%s' (%s)", value, this.inputEncoding, convertedValue,
+                    this.outputEncoding));
+        }
+
+        LOGGER.debug("Converted '{}' to '{}'", value, convertedValue);
+        return convertedValue;
+    }
+
+    private void processHeader(Set<String> headerNames) {
+
+        final Iterator<String> iterator = headerNames.iterator();
+
+        for (int i = 0; iterator.hasNext(); i++) {
+            String value = iterator.next();
+
+            if (value.length() != 2 && value.length() != 5) {
+                continue;
+            }
+
+            LOGGER.info("Processing header cell with value {}", value);
+            this.languages.add(value);
+            this.propertiesStore.add(new HashMap<>());
+        }
+    }
 }
