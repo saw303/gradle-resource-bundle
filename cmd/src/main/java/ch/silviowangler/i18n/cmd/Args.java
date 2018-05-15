@@ -38,7 +38,7 @@ public class Args {
   private String separator = ",";
   @Parameter(names = {"--basename", "-b"}, description = "Defines the resource bundle base name (default messages)")
   private String bundleBaseName = "messages";
-  @Parameter(names = {"--native2ascii", "--n2a"}, description = "Force native2ascii (default false)")
+  @Parameter(names = {"--native2ascii", "-n2a"}, description = "Force native2ascii (default false)")
   private boolean native2ascii = false;
 
   public File getCsvFile() {
