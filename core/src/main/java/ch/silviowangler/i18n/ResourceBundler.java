@@ -63,14 +63,14 @@ public class ResourceBundler {
         }
 
         final int propertiesFilesAmount = this.propertiesStore.size();
-        LOGGER.debug("Will generate {} properties files", propertiesFilesAmount);
+        LOGGER.info("Will generate {} properties files with {} records each", propertiesFilesAmount, records.getRecordNumber());
 
         // Properties Dateien schreiben
         for (int i = 0; i < propertiesFilesAmount; i++) {
             Map<String, String> properties = this.propertiesStore.get(i);
             File outputFile = new File(this.outputDir, this.bundleBaseName + "_" + this.languages.get(i) + ".properties");
 
-            LOGGER.debug("Writing {} to {}", outputFile.getName(), outputFile.getParentFile().getAbsolutePath());
+            LOGGER.info("Writing {} to {}", outputFile.getName(), outputFile.getParentFile().getAbsolutePath());
 
             FileOutputStream outputStream = new FileOutputStream(outputFile);
 
@@ -119,10 +119,15 @@ public class ResourceBundler {
 
         String key = record.get(0);
 
-        if (key.isEmpty()) return;
+        if (key.isEmpty() || key.trim().isEmpty()) {
+            LOGGER.warn("Record has no key {}", record);
+            return;
+        }
+
         for (int i = 1; i < record.size(); i++) {
             this.propertiesStore.get(i - 1).put(key, convertIfNecessary(record.get(i)));
         }
+        LOGGER.info("Successfully parsed {} records", this.propertiesStore.get(0).size());
     }
 
     private String convertIfNecessary(String value) throws UnsupportedEncodingException {
